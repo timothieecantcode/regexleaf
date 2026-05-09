@@ -41,9 +41,13 @@ function TransformForm({
 
       <button
         disabled={loading}
-        className="rounded-lg bg-[#3A5A40] px-6 py-3 font-semibold text-[#DAD7CD] hover:bg-[#588157] transition"
+        className="flex items-center justify-center gap-2 rounded-lg bg-[#3A5A40] px-6 py-3 font-semibold text-[#DAD7CD] hover:bg-[#588157] transition disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={handleSubmit}
       >
+        {loading && (
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#DAD7CD] border-t-transparent" />
+        )}
+
         {loading ? 'Transforming Dataset...' : 'Transform Dataset'}
       </button>
     </div>

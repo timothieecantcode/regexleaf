@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import './App.css'
 
 import FileUpload from './components/FileUpload'
@@ -34,14 +34,6 @@ function App() {
     return false
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setError('')
-    }
-
-    fetchData()
-  }, [])
-
   const handleSubmit = async () => {
     // Prevent empty submissions
     if (!prompt || !replacement || !file) return
@@ -52,26 +44,30 @@ function App() {
     formData.append('file', file)
     formData.append('prompt', prompt)
     formData.append('replacement', replacement)
-    setLoading(true)
-    const response = await fetch('http://127.0.0.1:8000/api/transform/', {
-      method: 'POST',
-      body: formData,
-    })
+    try {
+      setLoading(true)
+      const response = await fetch('http://127.0.0.1:8000/api/transform/', {
+        method: 'POST',
+        body: formData,
+      })
 
-    const hasError = await handleError(response)
+      const hasError = await handleError(response)
 
-    if (hasError) {
-      return
+      if (hasError) {
+        return
+      }
+
+      const data = await response.json()
+      setLoading(false)
+      setTable(data.preview)
+      setDownloadUrl(data.download_url)
+      setRows(data.rows)
+      setTotalRows(data.total_rows)
+      setColumns(data.columns)
+      setTotalColumns(data.total_columns)
+    } finally {
+      setLoading(false)
     }
-
-    const data = await response.json()
-    setLoading(false)
-    setTable(data.preview)
-    setDownloadUrl(data.download_url)
-    setRows(data.rows)
-    setTotalRows(data.total_rows)
-    setColumns(data.columns)
-    setTotalColumns(data.total_columns)
   }
 
   const [loading, setLoading] = useState(false)
@@ -80,7 +76,7 @@ function App() {
   return (
     <main className="min-h-screen bg-[#DAD7CD] text-[#3A5A40] px-6 py-10">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold mb-2">AI-Powered Regex Solver</h1>
+        <h1 className="text-4xl font-bold mb-2">AI-Powered Regex Transformer</h1>
 
         <p className="text-[#588157] mb-8">
           Upload and transform spreadsheet datasets using regex and AI.
@@ -115,7 +111,7 @@ function App() {
             <a
               href={downloadUrl}
               download
-              className="inline-flex items-center mb-2 gap-2 rounded-lg bg-[#3A5A40] px-4 py-2 font-medium text-[#DAD7CD] hover:bg-[#588157] transition"
+              className="mb-2 inline-flex items-center gap-2 rounded-lg bg-[#3A5A40] px-4 py-2 font-medium text-[#DAD7CD] hover:bg-[#588157] transition"
             >
               <Download size={18} />
               Download Result

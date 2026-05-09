@@ -25,7 +25,7 @@ function DataTable({ table }: DataTableProps) {
         {table.map((row, rIndex) => (
           <tr key={rIndex} className="border-b border-[#A3B18A] hover:bg-[#DAD7CD]">
             {Object.values(row).map((cell, cIndex) => (
-              <td key={cIndex} className="p-3 text-[#3A5A40]">
+              <td key={cIndex} className="max-w-65 truncate p-3 text-[#3A5A40]">
                 {String(cell)}
               </td>
             ))}
