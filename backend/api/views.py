@@ -11,25 +11,28 @@ api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
 
-# Create your views here.
-@api_view(["GET"])
-def test(request):
-    return Response({"message": "Backend connected successfully"})
-
-
+# views here.
 @api_view(["POST"])
 def transform(request):
-    print("Check")
     uploaded_file = request.FILES["file"]
     ext = uploaded_file.name.split(".")[-1].lower()
+    filename_without_ext = os.path.splitext(uploaded_file.name)[0]
     if ext == "xlsx":
         df = pd.read_excel(uploaded_file, dtype=str)
+        output_filename = f"transformed_{filename_without_ext}.xlsx"
+        output_path = os.path.join("media", output_filename)
+        df.to_excel(output_path, index=False)
     elif ext == "csv":
         df = pd.read_csv(uploaded_file, dtype=str)
+        output_filename = f"transformed_{filename_without_ext}.csv"
+        output_path = os.path.join("media", output_filename)
+        df.to_csv(output_path, index=False)
     else:
-        return Response({"error": "Invalid file"}, status=400)
+        return Response(
+            {"error": "Invalid file! Please upload xlsx or csv only!"}, status=400
+        )
 
-    # Remove completely empty rows and columns
+    # Remove completely empty rows and columns then replace missing values
     df = df.dropna(how="all")
     df = df.dropna(how="all", axis=1)
     df = df.reset_index(drop=True)
@@ -70,6 +73,7 @@ def transform(request):
     return Response(
         {
             "preview": preview_df.to_dict(orient="records"),
+            "download_url": f"http://127.0.0.1:8000/media/{output_filename}",
             "rows": rows,
             "total_rows": total_rows,
             "columns": columns,

@@ -9,13 +9,17 @@ interface StatusMessageProps {
 function StatusMessage({ error, rows, totalRows, columns, totalColumns }: StatusMessageProps) {
   return (
     <div>
-      {error && <p>{error}</p>}
+      {error && (
+        <div className="rounded-lg bg-red-100 border border-red-400 text-red-700 p-4 mb-4">
+          {error}
+        </div>
+      )}
 
       {totalRows > 0 && (
-        <p>
-          Show first {rows} rows of {totalRows} rows, first {columns} columns of {totalColumns}{' '}
-          columns
-        </p>
+        <div className="rounded-lg  p-4 text-[#3A5A40]">
+          Showing first {rows} rows of {totalRows} rows and first {columns} columns of{' '}
+          {totalColumns} columns.
+        </div>
       )}
     </div>
   )

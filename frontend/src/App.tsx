@@ -5,11 +5,10 @@ import FileUpload from './components/FileUpload'
 import TransformForm from './components/TransformForm'
 import StatusMessage from './components/StatusMessage'
 import DataTable from './components/DataTable'
-
+import { Download } from 'lucide-react'
 import type { TableRow } from './types/data'
 
 function App() {
-  const [response, setResponse] = useState('')
   const [error, setError] = useState('')
 
   const [file, setFile] = useState<File | null>(null)
@@ -38,16 +37,6 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       setError('')
-
-      const response = await fetch('http://127.0.0.1:8000/api/test/')
-
-      const hasError = await handleError(response)
-
-      if (hasError) return
-
-      const data = await response.json()
-
-      setResponse(data.message)
     }
 
     fetchData()
@@ -56,7 +45,6 @@ function App() {
   const handleSubmit = async () => {
     // Prevent empty submissions
     if (!prompt || !replacement || !file) return
-
     setError('')
 
     const formData = new FormData()
@@ -64,7 +52,7 @@ function App() {
     formData.append('file', file)
     formData.append('prompt', prompt)
     formData.append('replacement', replacement)
-
+    setLoading(true)
     const response = await fetch('http://127.0.0.1:8000/api/transform/', {
       method: 'POST',
       body: formData,
@@ -72,41 +60,73 @@ function App() {
 
     const hasError = await handleError(response)
 
-    if (hasError) return
+    if (hasError) {
+      return
+    }
 
     const data = await response.json()
-
+    setLoading(false)
     setTable(data.preview)
+    setDownloadUrl(data.download_url)
     setRows(data.rows)
     setTotalRows(data.total_rows)
     setColumns(data.columns)
     setTotalColumns(data.total_columns)
   }
 
+  const [loading, setLoading] = useState(false)
+  const [downloadUrl, setDownloadUrl] = useState('')
+
   return (
-    <>
-      <h1>{response}</h1>
+    <main className="min-h-screen bg-[#DAD7CD] text-[#3A5A40] px-6 py-10">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold mb-2">AI-Powered Regex Solver</h1>
 
-      <FileUpload setFile={setFile} />
+        <p className="text-[#588157] mb-8">
+          Upload and transform spreadsheet datasets using regex and AI.
+        </p>
 
-      <TransformForm
-        prompt={prompt}
-        setPrompt={setPrompt}
-        replacement={replacement}
-        setReplacement={setReplacement}
-        handleSubmit={handleSubmit}
-      />
+        <div className="bg-[#A3B18A] rounded-2xl p-6 shadow-lg mb-6">
+          <FileUpload file={file} setFile={setFile} />
+          <div className="mt-6">
+            <TransformForm
+              prompt={prompt}
+              setPrompt={setPrompt}
+              replacement={replacement}
+              setReplacement={setReplacement}
+              handleSubmit={handleSubmit}
+              loading={loading}
+            />
+          </div>
+        </div>
 
-      <StatusMessage
-        error={error}
-        rows={rows}
-        totalRows={totalRows}
-        columns={columns}
-        totalColumns={totalColumns}
-      />
+        <div className="mb-6">
+          <StatusMessage
+            error={error}
+            rows={rows}
+            totalRows={totalRows}
+            columns={columns}
+            totalColumns={totalColumns}
+          />
+        </div>
 
-      <DataTable table={table} />
-    </>
+        {table.length > 0 && (
+          <div>
+            <a
+              href={downloadUrl}
+              download
+              className="inline-flex items-center mb-2 gap-2 rounded-lg bg-[#3A5A40] px-4 py-2 font-medium text-[#DAD7CD] hover:bg-[#588157] transition"
+            >
+              <Download size={18} />
+              Download Result
+            </a>
+            <div className="bg-[#A3B18A] rounded-2xl p-6 shadow-lg overflow-auto">
+              <DataTable table={table} />
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
   )
 }
 
