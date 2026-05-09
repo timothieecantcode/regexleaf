@@ -29,6 +29,7 @@ def transform(request):
     else:
         return Response({"error": "Invalid file"}, status=400)
 
+    # Remove completely empty rows and columns
     df = df.dropna(how="all")
     df = df.dropna(how="all", axis=1)
     df = df.reset_index(drop=True)
