@@ -29,7 +29,10 @@ function App() {
   const [file, setFile] = useState<File | null>(null)
 
   const [table, setTable] = useState([])
-
+  const [rows, setRows] = useState([])
+  const [totalRows, setTotalRows] = useState('')
+  const [columns, setColumns] = useState([])
+  const [totalColumns, setTotalColumns] = useState('')
   const [prompt, setPrompt] = useState('')
   const [replacement, setReplacement] = useState('')
 
@@ -48,8 +51,12 @@ function App() {
     })
     const hasError = await handleError(response)
     if (hasError) return
-    const table = await response.json()
-    setTable(table)
+    const data = await response.json()
+    setTable(data.preview)
+    setRows(data.rows)
+    setTotalRows(data.total_rows)
+    setColumns(data.columns)
+    setTotalColumns(data.total_columns)
   }
 
   return (
@@ -79,6 +86,10 @@ function App() {
         Submit
       </button>
       {error && <p>{error}</p>}
+      <p>
+        Show first {rows} rows of {totalRows} rows, first {columns} columns of {totalColumns}{' '}
+        columns
+      </p>
       <table border={1}>
         <tbody>
           {table.map((row, rIndex) => (
