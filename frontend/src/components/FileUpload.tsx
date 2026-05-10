@@ -35,7 +35,7 @@ function FileUpload({ file, setFile }: FileUploadProps) {
     >
       <p className="mb-4 text-lg font-semibold text-[#3A5A40]">Drag & Drop CSV/XLSX File Here</p>
 
-      <p className="mb-6 text-[#588157]">or choose file manually</p>
+      <p className="mb-6 text-[#588157]">or</p>
 
       <label className="cursor-pointer rounded-lg bg-[#3A5A40] px-5 py-3 text-[#DAD7CD] font-medium hover:bg-[#588157] transition">
         Choose File
@@ -50,7 +50,7 @@ function FileUpload({ file, setFile }: FileUploadProps) {
         />
       </label>
 
-      <p className="mt-5 text-sm text-[#588157]">{file ? file.name : 'No file selected'}</p>
+      <p className="mt-5 text-sm text-[#588157]">{file ? file.name : '(No file selected)'}</p>
     </div>
   )
 }
