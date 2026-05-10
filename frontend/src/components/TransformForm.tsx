@@ -21,7 +21,7 @@ function TransformForm({
         <label className="block mb-2 font-medium">Prompt</label>
 
         <input
-          placeholder="e.g. Extract phone numbers"
+          placeholder="e.g. Find email addresses in the Email column and replace them with 'REDACTED'."
           value={prompt}
           onChange={e => setPrompt(e.target.value)}
           className="w-full rounded-lg border border-[#588157] bg-[#DAD7CD] p-3 text-[#3A5A40]"
@@ -32,7 +32,7 @@ function TransformForm({
         <label className="block mb-2 font-medium">Replacement Value</label>
 
         <input
-          placeholder="e.g. +61"
+          placeholder="e.g. REDACTED"
           value={replacement}
           onChange={e => setReplacement(e.target.value)}
           className="w-full rounded-lg border border-[#588157] bg-[#DAD7CD] p-3 text-[#3A5A40]"
