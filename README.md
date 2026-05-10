@@ -6,6 +6,7 @@ RegexLeaf is an AI-powered web application that allows users to upload CSV or Ex
 ## Live Demo Link
 
 Frontend: https://regex-leaf.vercel.app
+
 Backend: https://regexleaf.onrender.com
 
 ## Demo Video
@@ -42,8 +43,11 @@ Backend:
 ## Screenshots
 
 Conveniently processing spreadsheet data:
+
 ![alt text](image-1.png)
+
 Drag and drop feature:
+
 ![alt text](image-2.png)
 
 ## Setup Instructions
