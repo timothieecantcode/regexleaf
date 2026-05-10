@@ -3,61 +3,93 @@ from rest_framework.response import Response
 from dotenv import load_dotenv
 from openai import OpenAI
 from datetime import datetime
+from django.conf import settings
+
 import os
 import pandas as pd
 import re
 
 load_dotenv()
+
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
 
-# views here.
 @api_view(["POST"])
 def transform(request):
     uploaded_file = request.FILES["file"]
-    ext = uploaded_file.name.split(".")[-1].lower()
-    filename_without_ext = os.path.splitext(uploaded_file.name)[0]
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    if ext == "xlsx":
-        df = pd.read_excel(uploaded_file, dtype=str)
-        output_filename = f"transformed_{timestamp}_{filename_without_ext}.xlsx"
-        output_path = os.path.join("media", output_filename)
-    elif ext == "csv":
-        df = pd.read_csv(uploaded_file, dtype=str)
-        output_filename = f"transformed_{timestamp}_{filename_without_ext}.csv"
-        output_path = os.path.join("media", output_filename)
-    else:
+
+    if not uploaded_file:
         return Response(
-            {"error": "Invalid file! Please upload xlsx or csv only!"}, status=400
+            {"error": "No file uploaded"},
+            status=400,
         )
 
-    # Remove completely empty rows and columns then replace missing values
+    ext = uploaded_file.name.split(".")[-1].lower()
+    filename_without_ext = os.path.splitext(uploaded_file.name)[0]
+
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+
+    # Load uploaded spreadsheet
+    if ext == "xlsx":
+        df = pd.read_excel(uploaded_file, dtype=str)
+
+        output_filename = f"transformed_{timestamp}_{filename_without_ext}.xlsx"
+
+    elif ext == "csv":
+        df = pd.read_csv(uploaded_file, dtype=str)
+
+        output_filename = f"transformed_{timestamp}_{filename_without_ext}.csv"
+
+    else:
+        return Response(
+            {"error": "Invalid file! Please upload xlsx or csv only!"},
+            status=400,
+        )
+
+    # Clean dataframe
     df = df.dropna(how="all")
     df = df.dropna(how="all", axis=1)
     df = df.reset_index(drop=True)
     df = df.fillna("")
 
     prompt = request.data["prompt"]
+
     if len(prompt) > 200:
-        return Response({"error": "Prompt too long"}, status=400)
+        return Response(
+            {"error": "Prompt too long"},
+            status=400,
+        )
+
     replacement = request.data["replacement"]
 
+    # Generate regex pattern using OpenAI
     response = client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=[
             {
                 "role": "system",
-                "content": "Please generate regex patterns only. Return ONLY raw regex text. No markdown. No explanation. No quotes.",
+                "content": (
+                    "Please generate regex patterns only. "
+                    "Return ONLY raw regex text. "
+                    "No markdown. "
+                    "No explanation. "
+                    "No quotes."
+                ),
             },
-            {"role": "user", "content": f"Generate regex for: {prompt}"},
+            {
+                "role": "user",
+                "content": f"Generate regex for: {prompt}",
+            },
         ],
     )
 
     regex = response.choices[0].message.content
 
+    # Apply regex replacement across all cells
     for column_name in df:
         column = df[column_name]
+
         for row, cell in enumerate(column):
             new_val = re.sub(regex, replacement, str(cell))
             df.at[row, column_name] = new_val
@@ -69,6 +101,11 @@ def transform(request):
 
     rows = min(50, total_rows)
     columns = min(15, total_columns)
+
+    # Ensure media directory exists
+    os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
+
+    output_path = os.path.join(settings.MEDIA_ROOT, output_filename)
 
     # Save transformed file
     if ext == "xlsx":
