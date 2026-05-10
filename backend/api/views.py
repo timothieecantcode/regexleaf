@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from dotenv import load_dotenv
 from openai import OpenAI
+from datetime import datetime
 import os
 import pandas as pd
 import re
@@ -17,16 +18,15 @@ def transform(request):
     uploaded_file = request.FILES["file"]
     ext = uploaded_file.name.split(".")[-1].lower()
     filename_without_ext = os.path.splitext(uploaded_file.name)[0]
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     if ext == "xlsx":
         df = pd.read_excel(uploaded_file, dtype=str)
-        output_filename = f"transformed_{filename_without_ext}.xlsx"
+        output_filename = f"transformed_{timestamp}_{filename_without_ext}.xlsx"
         output_path = os.path.join("media", output_filename)
-        df.to_excel(output_path, index=False)
     elif ext == "csv":
         df = pd.read_csv(uploaded_file, dtype=str)
-        output_filename = f"transformed_{filename_without_ext}.csv"
+        output_filename = f"transformed_{timestamp}_{filename_without_ext}.xlsx"
         output_path = os.path.join("media", output_filename)
-        df.to_csv(output_path, index=False)
     else:
         return Response(
             {"error": "Invalid file! Please upload xlsx or csv only!"}, status=400
@@ -69,6 +69,13 @@ def transform(request):
 
     rows = min(50, total_rows)
     columns = min(15, total_columns)
+
+    # Save transformed file
+    if ext == "xlsx":
+        df.to_excel(output_path, index=False)
+
+    else:
+        df.to_csv(output_path, index=False)
 
     return Response(
         {
