@@ -8,6 +8,8 @@ import DataTable from './components/DataTable'
 import { Download } from 'lucide-react'
 import type { TableRow } from './types/data'
 
+const API_URL = import.meta.env.VITE_API_URL
+
 function App() {
   const [error, setError] = useState('')
 
@@ -46,7 +48,7 @@ function App() {
     formData.append('replacement', replacement)
     try {
       setLoading(true)
-      const response = await fetch('http://127.0.0.1:8000/api/transform/', {
+      const response = await fetch(`${API_URL}/api/transform/`, {
         method: 'POST',
         body: formData,
       })
@@ -58,7 +60,6 @@ function App() {
       }
 
       const data = await response.json()
-      setLoading(false)
       setTable(data.preview)
       setDownloadUrl(data.download_url)
       setRows(data.rows)
