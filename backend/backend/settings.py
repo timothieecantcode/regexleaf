@@ -23,10 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-wuo4!y_(+-&whbxb5qzny-6ju0ut29czxe*5sbwgl8+#=uq(7t"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
-    ".onrender.com",
+    "regexleaf.onrender.com",
     "127.0.0.1",
     "localhost",
 ]

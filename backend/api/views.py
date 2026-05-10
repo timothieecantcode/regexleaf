@@ -25,7 +25,7 @@ def transform(request):
         output_path = os.path.join("media", output_filename)
     elif ext == "csv":
         df = pd.read_csv(uploaded_file, dtype=str)
-        output_filename = f"transformed_{timestamp}_{filename_without_ext}.xlsx"
+        output_filename = f"transformed_{timestamp}_{filename_without_ext}.csv"
         output_path = os.path.join("media", output_filename)
     else:
         return Response(
@@ -60,7 +60,7 @@ def transform(request):
         column = df[column_name]
         for row, cell in enumerate(column):
             new_val = re.sub(regex, replacement, str(cell))
-            df[column_name][row] = new_val
+            df.at[row, column_name] = new_val
 
     total_rows = len(df)
     total_columns = len(df.columns)
