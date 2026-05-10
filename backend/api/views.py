@@ -73,7 +73,7 @@ def transform(request):
     return Response(
         {
             "preview": preview_df.to_dict(orient="records"),
-            "download_url": f"http://127.0.0.1:8000/media/{output_filename}",
+            "download_url": request.build_absolute_uri(f"/media/{output_filename}"),
             "rows": rows,
             "total_rows": total_rows,
             "columns": columns,

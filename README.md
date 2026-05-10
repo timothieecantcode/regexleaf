@@ -44,6 +44,8 @@ Drag and drop feature:
 
 ## Setup Instructions
 
+### Frontend
+
 ```bash
 cd frontend
 npm install
